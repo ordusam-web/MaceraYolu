@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kâşif Sarp'ın Görevleri</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #1a237e; /* Ajan üssü koyu mavi */
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        h1 { color: #ffeb3b; font-size: 2.2em; text-shadow: 2px 2px #f57f17; margin-bottom: 30px;}
+        
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .day-card {
+            width: 80px;
+            height: 100px;
+            background: #ffb300;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #d84315;
+            border: 4px solid #ffca28;
+            position: relative;
+            box-shadow: 0 6px 0 #ff8f00;
+            transition: transform 0.1s;
+        }
+        
+        .day-card:active { transform: translateY(6px); box-shadow: none; }
+        
+        .badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 30px;
+            display: none;
+        }
+        
+        .completed {
+            background: #4caf50;
+            border-color: #81c784;
+            color: white;
+            box-shadow: 0 6px 0 #2e7d32;
+        }
+        .completed .badge { display: block; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5)); }
+        
+        /* Modal & Zarf Animasyonları */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .envelope-wrapper {
+            position: relative;
+            width: 90%;
+            max-width: 380px;
+            perspective: 1000px;
+        }
+
+        /* Kapalı Mühürlü Zarf */
+        .closed-envelope {
+            background: #d32f2f;
+            height: 250px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            animation: dropDown 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #b71c1c;
+        }
+
+        .closed-envelope::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            border-left: 190px solid transparent;
+            border-right: 190px solid transparent;
+            border-top: 150px solid #ef5350;
+        }
+
+        .seal {
+            width: 70px;
+            height: 70px;
+            background: #ffc107;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 2;
+            border: 3px solid #ff9800;
+            animation: pulse 1.5s infinite;
+        }
+
+        .click-text {
+            z-index: 2;
+            color: white;
+            margin-top: 20px;
+            font-size: 22px;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        /* Açık Mektup */
+        .letter {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            color: #333;
+            text-align: left;
+            animation: unfold 0.5s ease-out;
+        }
+        
+        @keyframes dropDown {
+            0% { transform: translateY(-200px) scale(0.8) rotateX(-20deg); opacity: 0; }
+            100% { transform: translateY(0) scale(1) rotateX(0deg); opacity: 1; }
+        }
+
+        @keyframes unfold {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .letter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
+        }
+
+        .read-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1565c0;
+        }
+        .read-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Görev Kartları */
+        .task-card {
+            background: #f5f5f5;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .task-card.gidis { border-left: 8px solid #29b6f6; }
+        .task-card.donus { border-left: 8px solid #ab47bc; }
+
+        .task-card.done {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .emoji-icon {
+            font-size: 40px;
+            margin-right: 15px;
+        }
+
+        .close-btn {
+            width: 100%; padding: 15px; font-size: 20px; font-weight: bold;
+            background: #ff5722; color: white; border: none; border-radius: 10px;
+            cursor: pointer; box-shadow: 0 4px 0 #d84315; margin-top: 10px;
+        }
+        .close-btn:active { transform: translateY(4px); box-shadow: none; }
+
+    </style>
+</head>
+<body>
+
+    <h1>🕵️‍♂️ Kâşif Sarp'ın Gizli Görevleri</h1>
+    <div class="grid" id="grid"></div>
+
+    <!-- Modal ve Zarf Alanı -->
+    <div class="modal-overlay" id="modal">
+        <div class="envelope-wrapper">
+            
+            <!-- Kapalı Zarf -->
+            <div class="closed-envelope" id="closed-envelope" onclick="openEnvelope()">
+                <div class="seal">🛡️</div>
+                <div class="click-text">Açmak için mühre dokun!</div>
+            </div>
+
+            <!-- Açılan Mektup -->
+            <div class="letter" id="opened-letter">
+                <div class="letter-header">
+                    <h2 style="margin:0; color:#d32f2f;" id="modal-title">Gün 1</h2>
+                    <button class="read-btn" onclick="readTasksAloud()">🔊 Oku</button>
+                </div>
+                
+                <div class="task-card gidis" id="card-gidis" onclick="toggleTask('gidis')">
+                    <div class="emoji-icon" id="emoji-gidis">☀️</div>
+                    <div id="text-gidis">Görev yükleniyor...</div>
+                </div>
+                
+                <div class="task-card donus" id="card-donus" onclick="toggleTask('donus')">
+                    <div class="emoji-icon" id="emoji-donus">🌙</div>
+                    <div id="text-donus">Görev yükleniyor...</div>
+                </div>
+                
+                <button class="close-btn" onclick="closeModal()">Görevi Kaydet & Kapat</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Sarp'ın 15 Günlük Özel Görev Listesi
+        const gorevler = [
+            { gun: 1, 
+              gidisEmoji: "🫐", gidis: "Evden çıkmadan yaban mersini fidanına günaydın de ve yaprağına dokun.", 
+              donusEmoji: "🐻", donus: "Eve dönerken en sevdiğin orman hayvanı gibi kükre ve yürü!" },
+            { gun: 2, 
+              gidisEmoji: "🏴‍☠️", gidis: "Yolda korsan şarkısı çalarken korsanlar gibi mırıldan!", 
+              donusEmoji: "👽", donus: "Eve dönünce ikiz kardeşlerine kendi uydurduğun uzaylı diliyle merhaba de." },
+            { gun: 3, 
+              gidisEmoji: "⚡", gidis: "Önündeki 10 adımı çok yavaş, sonraki 10 adımı çok hızlı at!", 
+              donusEmoji: "🐶", donus: "Üsse dönünce köpeğimizle selamlaş ve ona okulda öğrendiğin bir kelimeyi fısılda." },
+            { gun: 4, 
+              gidisEmoji: "🐎", gidis: "Okula giderken görünmez bir ata biniyormuş gibi dıgıdık dıgıdık yap.", 
+              donusEmoji: "🐴", donus: "Arabadan inince çok mutlu bir at gibi kişne!" },
+            { gun: 5, 
+              gidisEmoji: "🚗", gidis: "Ajan gözlüklerini tak! Yolda 3 tane kırmızı renkli araba bul.", 
+              donusEmoji: "🐸", donus: "Kaldırımda yürürken 5 kere kurbağa gibi zıpla." },
+            { gun: 6, 
+              gidisEmoji: "🍃", gidis: "Rüzgarda sallanan yaprakları bul ve onlara gizlice el salla.", 
+              donusEmoji: "🌋", donus: "Dikkat lavlar! Kaldırım çizgilerine basmadan eve ulaşmaya çalış." },
+            { gun: 7, 
+              gidisEmoji: "☁️", gidis: "Gökyüzüne bak ve bulutlardan bir hayvan şekli bulmaya çalış.", 
+              donusEmoji: "🪨", donus: "Yolda gördüğün en ilginç taşı bul, gizli bir hazine gibi eve getir." },
+            { gun: 8, 
+              gidisEmoji: "🥷", gidis: "Okula girerken görünmez bir ninja gibi çok sessiz yürü.", 
+              donusEmoji: "🟡", donus: "Yolculuk boyunca etrafta sarı renkli olan 3 farklı eşya bul." },
+            { gun: 9, 
+              gidisEmoji: "🐜", gidis: "Yere çok dikkatlice bak ve yürüyen bir karınca bulmaya çalış.", 
+              donusEmoji: "✈️", donus: "Kollarını iki yana aç ve eve doğru bir uçak gibi uçarak git." },
+            { gun: 10, 
+              gidisEmoji: "🔢", gidis: "Arabadan inince okul kapısına kadar adımlarını yüksek sesle say.", 
+              donusEmoji: "🌳", donus: "Yolda gördüğün en büyük ağaca gizlice sarıl ve güç topla." },
+            { gun: 11, 
+              gidisEmoji: "💃", gidis: "Yolda sevdiğin şarkı çalarken oturduğun yerden en komik dansını yap.", 
+              donusEmoji: "👩", donus: "Okulda yediğin yemeğin adını, annene (İmren'e) şarkı söyleyerek anlat." },
+            { gun: 12, 
+              gidisEmoji: "😜", gidis: "Okul kapısında babana en komik yüz ifadeni yaparak onu güldür.", 
+              donusEmoji: "👶", donus: "Eve girer girmez ikizlere saklanıp ce-e yap!" },
+            { gun: 13, 
+              gidisEmoji: "🐈", gidis: "Yolda gördüğün bir kediye veya köpeğe uzaktan öpücük at.", 
+              donusEmoji: "🦶", donus: "Eve giderken dev bir canavar gibi kocaman dev adımları at." },
+            { gun: 14, 
+              gidisEmoji: "🦸‍♂️", gidis: "Okulun kapısından içeri girerken en sevdiğin süper kahraman pozunu ver!", 
+              donusEmoji: "🕺", donus: "Görevleri harika yaptın! Eve girince kocaman bir zafer dansı yap!" },
+            { gun: 15, 
+              gidisEmoji: "🌲", gidis: "Bahçedeki en uzun ağacı bul ve ona selam ver.", 
+              donusEmoji: "⭐", donus: "Sen artık usta bir kâşifsin! Kendini alkışla ve yıldız gibi parla!" }
+        ];
+
+        let currentDay = null;
+        let sarpProgress = JSON.parse(localStorage.getItem('sarpProgress')) || {};
+
+        const grid = document.getElementById('grid');
+
+        // Ana ekranı çiz
+        function renderGrid() {
+            grid.innerHTML = '';
+            gorevler.forEach(gorev => {
+                const isCompleted = sarpProgress[gorev.gun]?.gidis && sarpProgress[gorev.gun]?.donus;
+                
+                const card = document.createElement('div');
+                card.className = `day-card ${isCompleted ? 'completed' : ''}`;
+                card.onclick = () => showEnvelope(gorev.gun);
+                
+                card.innerHTML = `GÜN<br><b>${gorev.gun}</b><div class="badge">🎖️</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        // 1. Aşama: Kapalı Zarfı Göster
+        function showEnvelope(gun) {
+            currentDay = gun;
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('closed-envelope').style.display = 'flex';
+            document.getElementById('opened-letter').style.display = 'none';
+        }
+
+        // 2. Aşama: Zarfı Aç ve Mektubu Göster
+        function openEnvelope() {
+            const gorev = gorevler.find(g => g.gun === currentDay);
+            
+            // Bilgileri Doldur
+            document.getElementById('modal-title').innerText = `${currentDay}. Gün Görevleri`;
+            document.getElementById('emoji-gidis').innerText = gorev.gidisEmoji;
+            document.getElementById('text-gidis').innerText = gorev.gidis;
+            document.getElementById('emoji-donus').innerText = gorev.donusEmoji;
+            document.getElementById('text-donus').innerText = gorev.donus;
+
+            // Yapılmışsa yeşil yap
+            const gidisDurum = sarpProgress[currentDay]?.gidis || false;
+            const donusDurum = sarpProgress[currentDay]?.donus || false;
+            
+            document.getElementById('card-gidis').className = `task-card gidis ${gidisDurum ? 'done' : ''}`;
+            document.getElementById('card-donus').className = `task-card donus ${donusDurum ? 'done' : ''}`;
+
+            // Görünürlük ayarı
+            document.getElementById('closed-envelope').style.display = 'none';
+            document.getElementById('opened-letter').style.display = 'block';
+            
+            // Açılır açılmaz kısa bir bildirim sesi (Opsiyonel robot sesi giriş efekti)
+            speak("Yeni görevler açıldı.");
+        }
+
+        // Göreve tıklayınca yeşil olma (tamamlama) durumu
+        function toggleTask(type) {
+            if(!sarpProgress[currentDay]) sarpProgress[currentDay] = {};
+            
+            sarpProgress[currentDay][type] = !sarpProgress[currentDay][type];
+            
+            const card = document.getElementById(`card-${type}`);
+            if(sarpProgress[currentDay][type]) {
+                card.classList.add('done');
+                speak("Görev tamamlandı. Harikasın Sarp!");
+            } else {
+                card.classList.remove('done');
+            }
+            
+            localStorage.setItem('sarpProgress', JSON.stringify(sarpProgress));
+            renderGrid(); // Arkadaki rozeti güncelle
+        }
+
+        // Telefonun sesli okuması (Text-to-Speech)
+        function readTasksAloud() {
+            const gorev = gorevler.find(g => g.gun === currentDay);
+            const metin = `Günaydın kâşif Sarp! Bugünkü okula gidiş görevin: ${gorev.gidis}. Eve dönüş görevin ise: ${gorev.donus}. Başarılar dilerim!`;
+            speak(metin);
+        }
+
+        // Ses API'si Fonksiyonu
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Önceki okumayı durdur
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = text;
+                msg.lang = 'tr-TR';
+                msg.rate = 0.9; // Biraz yavaş ve anlaşılır okuması için
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        // Modalı Kapat
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            window.speechSynthesis.cancel(); // Kapatınca sesi kes
+        }
+
+        // Başlangıç
+        renderGrid();
+    </script>
+</body>
+</html>
